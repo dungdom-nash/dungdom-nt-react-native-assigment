@@ -16,14 +16,13 @@ const App = () => {
         <AppContent />
       </Provider>
     </AuthProvider>
-
   );
 };
 
 const AppContent: React.FC = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SignIn">
+      <Stack.Navigator initialRouteName="Main">
         <Stack.Screen
           name="SignIn"
           component={SignInScreen}
@@ -42,6 +41,6 @@ const AppContent: React.FC = () => {
       </Stack.Navigator>
     </NavigationContainer>
   )
-}
+};
 
 export default App;

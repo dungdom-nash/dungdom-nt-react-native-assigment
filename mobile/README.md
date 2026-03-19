@@ -85,3 +85,7 @@ You need
 - Add the system path for the following
    C:\Users\dungdom\AppData\Local\Android\Sdk\platform-tools
    C:\Users\dungdom\AppData\Local\Android\Sdk\emulator
+
+Debuger:
+at mobile\
+npx react-native log-android

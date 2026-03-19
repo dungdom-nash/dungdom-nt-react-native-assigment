@@ -1,102 +1,139 @@
-import { FC, useState } from "react"
-import { Text, TouchableOpacity, View } from "react-native"
-import Background from "../components/Background"
-import { styles } from "./styles/signin-screen-styles"
-import Logo from "../components/Logo"
-import TextInput from "../components/TextInput"
-import Button from "../components/Button"
-import { ITextInput } from "../types/text-input"
+import { FC, useMemo, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import Background from "../components/Background";
+import { styles } from "./styles/signin-screen-styles";
+import TextInput from "../components/TextInput";
+import Button from "../components/Button";
+import { ITextInput } from "../types/text-input";
+import { useAuth } from "../contexts/auth-context";
 
 interface ISignInScreen {
     navigation: any
 }
 
 export const SignInScreen: FC<ISignInScreen> = ({ navigation }: any) => {
+    const { login } = useAuth();
+    const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+    const isLogin = useMemo(() => activeTab === "login", [activeTab]);
 
-    const [email, setEmail] = useState<ITextInput>({
-        value: 'eve.holt@reqres.in',
+    const [username, setUsername] = useState<ITextInput>({
+        value: 'johndoe123',
         error: '',
     });
     const [password, setPassword] = useState<ITextInput>({
         value: 'cityslicka',
         error: '',
     });
+    const [useBiometrics, setUseBiometrics] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
-    function onPressSignIn() {
-        console.log('On Press Sign In Button')
-        console.log(email)
-        console.log(password)
-        //TODO Handle calling api with email and password
-        navigation.navigate('Home');
+    async function onPressSignIn() {
+        setSubmitting(true);
+        setFormError(null);
+
+        const result = await login(username.value.trim(), password.value);
+        setSubmitting(false);
+
+        if (!result.ok) {
+            setFormError(result.message);
+            return;
+        }
+
+        navigation.replace('Main');
     }
 
     return (
         <Background>
-            <View style={{ width: '100%', height: '100%', padding: 20, flex: 1, flexDirection: 'column' }}>
-                <View style={{ alignContent: 'center', flex: 0.2 }}>
-                    <View style={styles.changeLanguageContent}>
-                        <Text
-                            style={styles.languageItem}
-                            onPress={() => {
-                                console.log('press language');
-                                // console.log(i18n);
-                                // i18n.changeLanguage('en');
-                            }}>
-                            English
-                        </Text>
-                        <Text
-                            style={styles.languageItem}
-                            onPress={() => {
-                                // i18n.changeLanguage('vi');
-                            }}>
-                            Tiếng Việt
-                        </Text>
+            <View style={styles.container}>
+                <View style={styles.card}>
+                    <View style={styles.iconCircle}>
+                        <Text style={styles.iconText}>👜</Text>
                     </View>
-                </View>
-                <View style={{ alignContent: 'center', flex: 0.5 }}>
-                    <Logo />
+                    <Text style={styles.title}>Welcome Back</Text>
+                    <Text style={styles.subtitle}>Please enter your details</Text>
+
+                    <View style={styles.segmented}>
+                        <TouchableOpacity
+                            style={[styles.segItem, isLogin ? styles.segItemActive : undefined]}
+                            onPress={() => setActiveTab("login")}
+                            activeOpacity={0.85}
+                        >
+                            <Text style={[styles.segText, isLogin ? styles.segTextActive : undefined]}>Login</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.segItem, !isLogin ? styles.segItemActive : undefined]}
+                            onPress={() => setActiveTab("signup")}
+                            activeOpacity={0.85}
+                        >
+                            <Text style={[styles.segText, !isLogin ? styles.segTextActive : undefined]}>Sign Up</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <Text style={styles.fieldLabel}>Username</Text>
                     <TextInput
-                        placeholder={'Email'}
+                        placeholder={"johndoe123"}
                         returnKeyType="next"
-                        value={email.value}
-                        onChangeText={(text: string) => setEmail({ value: text, error: '' })}
-                        error={!!email.error}
-                        errorText={email.error}
+                        value={username.value}
+                        onChangeText={(text: string) => setUsername({ value: text, error: "" })}
+                        error={!!username.error}
+                        errorText={username.error}
                         autoCapitalize="none"
-                        autoCompleteType="email"
-                        textContentType="emailAddress"
-                        keyboardType="email-address"
+                        autoCorrect={false}
+                        textContentType="username"
                     />
+
+                    <Text style={styles.fieldLabel}>Password</Text>
                     <TextInput
-                        placeholder={'Password'}
+                        placeholder={"••••••••"}
                         returnKeyType="done"
                         value={password.value}
-                        onChangeText={(text: string) => setPassword({ value: text, error: '' })}
+                        onChangeText={(text: string) => setPassword({ value: text, error: "" })}
                         error={!!password.error}
                         errorText={password.error}
                         secureTextEntry
                     />
-                    <View style={styles.forgotPassword}>
-                        <TouchableOpacity
-                            onPress={() => navigation.replace('ForgotPasswordScreen')}>
-                            <Text style={styles.forgot}>{'Forgot your password?'}</Text>
+
+                    <View style={styles.forgotRow}>
+                        <TouchableOpacity onPress={() => console.log("Forgot password")} activeOpacity={0.85}>
+                            <Text style={styles.forgot}>Forgot Password?</Text>
                         </TouchableOpacity>
                     </View>
+
+                    {formError ? <Text style={styles.subtitle}>{formError}</Text> : null}
+
+                    <TouchableOpacity
+                        style={styles.checkboxRow}
+                        onPress={() => setUseBiometrics(v => !v)}
+                        activeOpacity={0.85}
+                    >
+                        <View style={[styles.checkbox, useBiometrics ? styles.checkboxChecked : undefined]}>
+                            {useBiometrics ? <Text style={styles.checkboxTick}>✓</Text> : null}
+                        </View>
+                        <Text style={styles.checkboxText}>Use biometrics for faster login</Text>
+                    </TouchableOpacity>
+
                     <Button
-                        mode="contained"
+                        style={styles.primaryButton}
                         onPress={() => {
-                            onPressSignIn();
-                        }}>
-                        <Text>{'Login'}</Text>
+                            if (isLogin) {
+                                if (!submitting) onPressSignIn();
+                                return;
+                            }
+                            console.log("Sign Up pressed (not implemented)");
+                        }}
+                    >
+                        <Text style={styles.primaryButtonText}>
+                            {submitting ? 'Signing in...' : isLogin ? "Sign In" : "Create account"}
+                        </Text>
                     </Button>
-                    <View style={styles.row}>
-                        <Text>{'Don’t have an account?'} </Text>
-                        <TouchableOpacity onPress={() => navigation.replace('SignUpScreen')}>
-                            <Text style={styles.link}>{'Sign up'}</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                <View style={{ alignContent: 'center', flex: 0.2 }}>
+
+                    <Button
+                        style={styles.secondaryButton}
+                        onPress={() => console.log("Sign in with biometrics")}
+                    >
+                        <Text style={styles.secondaryButtonText}>Sign in with Biometrics</Text>
+                    </Button>
                 </View>
             </View>
         </Background>

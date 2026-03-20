@@ -12,7 +12,7 @@ interface ISignInScreen {
 }
 
 export const SignInScreen: FC<ISignInScreen> = ({ navigation }: any) => {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const isLogin = useMemo(() => activeTab === 'login', [activeTab]);
 
@@ -33,6 +33,21 @@ export const SignInScreen: FC<ISignInScreen> = ({ navigation }: any) => {
     setFormError(null);
 
     const result = await login(username.value.trim(), password.value);
+    setSubmitting(false);
+
+    if (!result.ok) {
+      setFormError(result.message);
+      return;
+    }
+
+    navigation.replace('Main');
+  }
+
+  async function onPressSignUp() {
+    setSubmitting(true);
+    setFormError(null);
+
+    const result = await register(username.value.trim(), password.value);
     setSubmitting(false);
 
     if (!result.ok) {
@@ -151,11 +166,15 @@ export const SignInScreen: FC<ISignInScreen> = ({ navigation }: any) => {
                 }
                 return;
               }
-              console.log('Sign Up pressed (not implemented)');
+              if (!submitting) {
+                onPressSignUp();
+              }
             }}>
             <Text style={styles.primaryButtonText}>
               {submitting
-                ? 'Signing in...'
+                ? isLogin
+                  ? 'Signing in...'
+                  : 'Creating account...'
                 : isLogin
                 ? 'Sign In'
                 : 'Create account'}

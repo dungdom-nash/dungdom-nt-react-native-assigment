@@ -89,3 +89,7 @@ You need
 Debuger:
 at mobile\
 npx react-native log-android
+
+Error with the emulator
+- Build failed
+  Solution: in android studio, view/Tool windows/Device Manager, do the cold boot for device you used

@@ -1,27 +1,38 @@
 import axios from 'axios';
 
 const backendClient = axios.create({
-    // Android emulator -> host machine loopback
-    baseURL: 'http://10.0.2.2:3000',
-    timeout: 15000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+  // Android emulator -> host machine loopback
+  baseURL: 'http://10.0.2.2:3000',
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 export type LoginResponse = {
-    status: boolean;
-    data?: {
-        user: any;
-        token: string;
-    };
-    error?: {
-        message?: string;
-    };
+  status: boolean;
+  data?: {
+    user: any;
+    token: string;
+  };
+  error?: {
+    message?: string;
+  };
+};
+
+export type RegisterPayload = {
+  username: string;
+  email: string;
+  password: string;
+  age: number;
+  firstName: string;
+  lastName: string;
 };
 
 export const apiService = {
-    fetchData: () => axios.get('https://jsonplaceholder.typicode.com/photos'),
-    login: (username: string, password: string) =>
-        backendClient.post<LoginResponse>('/login', { username, password }),
+  fetchData: () => axios.get('https://jsonplaceholder.typicode.com/photos'),
+  login: (username: string, password: string) =>
+    backendClient.post<LoginResponse>('/login', { username, password }),
+  register: (payload: RegisterPayload) =>
+    backendClient.post<LoginResponse>('/signup', payload),
 };

@@ -69,7 +69,7 @@ export const styles = StyleSheet.create<ISignInStyles>({
     textAlign: 'center',
     marginTop: 6,
     marginBottom: 16,
-    color: '#7C8A97',
+    color: 'red',
   },
   segmented: {
     width: '100%',

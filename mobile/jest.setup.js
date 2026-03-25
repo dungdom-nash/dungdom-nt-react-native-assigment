@@ -41,3 +41,10 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
   },
 }));
 
+jest.mock('react-native-keychain', () => ({
+  __esModule: true,
+  getGenericPassword: jest.fn().mockResolvedValue(false),
+  setGenericPassword: jest.fn().mockResolvedValue(true),
+  resetGenericPassword: jest.fn().mockResolvedValue(true),
+}));
+
